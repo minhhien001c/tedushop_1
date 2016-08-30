@@ -5,10 +5,11 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Data.Entity;
 using TeduShop.Model.Models;
+using Microsoft.AspNet.Identity.EntityFramework;
 
 namespace TeduShop.Data
 {
-    public class TeduShopDbContext : DbContext
+    public class TeduShopDbContext : IdentityDbContext<ApplicationUser>
     {
         public TeduShopDbContext()
           : base("TeduShopConnection")
@@ -35,10 +36,22 @@ namespace TeduShop.Data
         public DbSet<VisitorStatistic> VisitorStatistics { set; get; }
         public DbSet<Error> Errors { set; get; }
 
-        //chay khi khoi tao entityframework
-        protected override void OnModelCreating(DbModelBuilder modelBuilder)
+        //xem mau khi tao project co authen Models/IdentityModels
+        //tao moi chinh no
+        public static TeduShopDbContext Create()
         {
-
+            return new TeduShopDbContext();
         }
+        //chay khi khoi tao entityframework
+        protected override void OnModelCreating(DbModelBuilder builder)
+        {
+            //Sau khi lam phan auth, generate ra DB bi loi nen them vao
+            // EntityType 'IdentityUserRole' has no key defined. Define the key for this EntityType
+            builder.Entity<IdentityUserRole>().HasKey(i => new { i.UserId, i.RoleId });
+            builder.Entity<IdentityUserLogin>().HasKey(i => i.UserId);
+        }
+
+       
+
     }
 }
